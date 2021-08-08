@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 
-class HomePage extends StatelessWidget {
-  const HomePage({Key key}) : super(key: key);
+class MovieDetailScreen extends StatelessWidget {
+  final int movieId;
+
+  MovieDetailScreen({required this.movieId});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: null,
       body: Center(
-        child: Text('Home Page'),
+        child: Text('MovieDetail Screen'),
       ),
     );
   }
