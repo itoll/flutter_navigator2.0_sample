@@ -1,0 +1,1 @@
+enum PageTransitionType { ScaleOut, SlideLeft }
