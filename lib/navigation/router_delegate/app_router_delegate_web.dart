@@ -125,6 +125,11 @@ class AppRouterDelegateWeb extends AppRouterDelegate<Uri> {
     return;
   }
 
+  @override
+  void removePage(String pageKey) {
+    pageStack.removePage(pageKey);
+  }
+
   void _pushPage(Page page) {
     pageStack.push(page);
   }
@@ -158,6 +163,7 @@ class AppRouterDelegateWeb extends AppRouterDelegate<Uri> {
   /// whether this pop is successful. By returning false, it prevents navigator
   /// from rebuilding so that the page user is currently in wouldnt rebuild
   bool _onPopPage(Route<dynamic> route, dynamic result) {
+    print('onPopPage: $route');
     var didPop = route.didPop(result);
 
     if (didPop) {
@@ -171,7 +177,10 @@ class AppRouterDelegateWeb extends AppRouterDelegate<Uri> {
   /// If returns false, the entire app will be popped, else
   /// it will pop the last page
   @override
-  SynchronousFuture<bool> popRoute() => SynchronousFuture(tryGoBack());
+  SynchronousFuture<bool> popRoute() {
+    print('popRoute');
+    return SynchronousFuture(tryGoBack());
+  }
 
   /// This method is called either by back button press
   /// or when [Navigator.of(context).pop()] is called.
@@ -182,17 +191,21 @@ class AppRouterDelegateWeb extends AppRouterDelegate<Uri> {
     var lastPageName = pageStack.last.name;
     switch (lastPageName) {
       case PageKeys.Splash:
+        print('tryGoBack from splash');
         return false;
       case PageKeys.Home:
         if (kDebugMode) {
+          print('tryGoBack from home');
           pageStack.popLastPage();
           return true;
         }
         return false;
       case PageKeys.MovieDetail:
+        print('tryGoBack from movieDetail');
         pageStack.popLastPage();
         return true;
       default:
+        print('tryGoBack');
         pageStack.popLastPage();
         return true;
     }
@@ -206,6 +219,8 @@ class AppRouterDelegateWeb extends AppRouterDelegate<Uri> {
   /// micro-task to schedule a build.
   @override
   Future<void> setNewRoutePath(Uri uri) async {
+    print('setNewRoutePath: ${uri.toString()}');
+
     if (uri.toString() == '/') {
       push(Uri.parse('/${PageKeys.Splash}'));
       return null;
@@ -214,12 +229,14 @@ class AppRouterDelegateWeb extends AppRouterDelegate<Uri> {
 
       var loadingDestination = '/${PageKeys.Loading}';
       push(Uri.parse(loadingDestination));
+      await Future.delayed(Duration(seconds: 1));
 
       switch (location) {
         case PageKeys.Home:
           await fetchAndStoreConfiguration();
           var destination = '/${PageKeys.Home}';
-          push(Uri.parse(destination));
+          replaceAllPagesWith(Uri.parse(destination));
+          removePage(PageKeys.Loading);
           break;
         case PageKeys.MovieDetail:
           var _futures = List<Future>.empty(growable: true);
@@ -229,10 +246,12 @@ class AppRouterDelegateWeb extends AppRouterDelegate<Uri> {
 
           var movieId = uri.pathSegments.elementAt(1);
           var destination = '/${PageKeys.MovieDetail}/$movieId';
-          push(Uri.parse(destination));
+          replaceAllPagesWith(Uri.parse(destination));
 
           var homeDestination = '/${PageKeys.Home}';
           pushBefore(Uri.parse(homeDestination), PageKeys.MovieDetail);
+
+          removePage(PageKeys.Loading);
       }
     }
     return null;
@@ -263,8 +282,10 @@ class AppRouterDelegateWeb extends AppRouterDelegate<Uri> {
   Uri get currentConfiguration {
     if (!pageStack.isEmpty) {
       var lastPageName = pageStack.last.name;
+      print('currentConfiguration: $lastPageName');
       return Uri.parse(lastPageName ?? '');
     } else {
+      print('currentConfiguration: splash');
       return Uri.parse(PageKeys.Splash);
     }
   }

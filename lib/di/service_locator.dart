@@ -10,6 +10,7 @@ import 'package:flutter_navigator2_sample/presentation/bloc/splash/splash_bloc.d
 import 'package:flutter_navigator2_sample/presentation/bloc/splash/splash_state.dart';
 import 'package:flutter_navigator2_sample/presentation/command/fetch_and_store_configuration.dart';
 import 'package:flutter_navigator2_sample/presentation/command/fetch_image_base_url.dart';
+import 'package:flutter_navigator2_sample/presentation/command/fetch_movie_detail.dart';
 import 'package:flutter_navigator2_sample/presentation/command/fetch_popular_movies.dart';
 import 'package:flutter_navigator2_sample/storage/shared_preferences_manager.dart';
 import 'package:get_it/get_it.dart';
@@ -32,9 +33,11 @@ Future<void> bootstrapServiceLocator() async {
   sl.registerFactory<FetchAndStoreConfiguration>(() => FetchAndStoreConfiguration(http: sl(), sp: sl()));
   sl.registerFactory<FetchPopularMovies>(() => FetchPopularMovies(http: sl()));
   sl.registerFactory<FetchImageBaseUrl>(() => FetchImageBaseUrl(sharedPreferencesManager: sl()));
+  sl.registerFactory<FetchMovieDetail>(() => FetchMovieDetail(http: sl()));
 
   sl.registerLazySingleton<SplashBloc>(() => SplashBloc(router: sl(), fetchAndStoreConfiguration: sl(), initialState: SplashState.initial()));
   sl.registerLazySingleton<HomeBloc>(
       () => HomeBloc(router: sl(), fetchPopularMovies: sl(), fetchImageBaseUrl: sl(), initialState: HomeState.initial()));
-  sl.registerLazySingleton<MovieDetailBloc>(() => MovieDetailBloc(initialState: MovieDetailState.initial()));
+  sl.registerLazySingleton<MovieDetailBloc>(
+      () => MovieDetailBloc(fetchMovieDetail: sl(), fetchImageBaseUrl: sl(), initialState: MovieDetailState.initial()));
 }

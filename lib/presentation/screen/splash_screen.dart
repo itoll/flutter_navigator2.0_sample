@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_navigator2_sample/presentation/bloc/splash/splash_bloc.dart';
 import 'package:flutter_navigator2_sample/presentation/bloc/splash/splash_event.dart';
 import 'package:flutter_navigator2_sample/presentation/bloc/splash/splash_state.dart';
 import 'package:flutter_navigator2_sample/presentation/state_holder.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -30,13 +32,27 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: null,
-      body: BlocListener<SplashBloc, SplashState>(
-        listenWhen: _splashBlocListenWhen,
-        listener: _splashBlocListener,
-        child: Center(
-          child: Text('Splash Screen'),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle(
+        statusBarIconBrightness: Brightness.light,
+      ),
+      child: Scaffold(
+        appBar: null,
+        body: BlocListener<SplashBloc, SplashState>(
+          listenWhen: _splashBlocListenWhen,
+          listener: _splashBlocListener,
+          child: Container(
+            color: Colors.black,
+            child: Center(
+              child: Text(
+                'Moviez',
+                style: GoogleFonts.blackOpsOne().copyWith(
+                  color: Colors.white,
+                  fontSize: 48.0,
+                ),
+              ),
+            ),
+          ),
         ),
       ),
     );

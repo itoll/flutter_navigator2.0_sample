@@ -34,4 +34,8 @@ abstract class AppRouterDelegate<T> extends RouterDelegate<T> with PopNavigatorR
   void replaceAllPagesWith(Uri input) {
     throw UnimplementedError();
   }
+
+  void removePage(String pageKey) {
+    throw UnimplementedError();
+  }
 }

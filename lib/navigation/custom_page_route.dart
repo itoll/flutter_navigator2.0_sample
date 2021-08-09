@@ -27,7 +27,7 @@ class CustomPageRoute {
           reverseTransitionDuration: transitionDuration,
           pageBuilder: (context, animation, secondaryAnimation) => child,
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            var scaleAnimation = Tween(begin: 0.0, end: 0.1).animate(CurvedAnimation(
+            var scaleAnimation = Tween(begin: 0.0, end: 0.2).animate(CurvedAnimation(
               curve: transitionCurve,
               reverseCurve: transitionCurve,
               parent: secondaryAnimation,
