@@ -15,7 +15,7 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
-    BlocProvider.of<SplashBloc>(context).add(SplashConfigurationFetched());
+    // BlocProvider.of<SplashBloc>(context).add(SplashConfigurationFetched());
     super.initState();
   }
 
@@ -38,18 +38,14 @@ class _SplashScreenState extends State<SplashScreen> {
       ),
       child: Scaffold(
         appBar: null,
-        body: BlocListener<SplashBloc, SplashState>(
-          listenWhen: _splashBlocListenWhen,
-          listener: _splashBlocListener,
-          child: Container(
-            color: Colors.black,
-            child: Center(
-              child: Text(
-                'Moviez',
-                style: GoogleFonts.blackOpsOne().copyWith(
-                  color: Colors.white,
-                  fontSize: 48.0,
-                ),
+        body: Container(
+          color: Colors.black,
+          child: Center(
+            child: Text(
+              'Moviez',
+              style: GoogleFonts.blackOpsOne().copyWith(
+                color: Colors.white,
+                fontSize: 48.0,
               ),
             ),
           ),

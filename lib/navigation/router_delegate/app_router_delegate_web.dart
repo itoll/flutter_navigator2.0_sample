@@ -211,6 +211,19 @@ class AppRouterDelegateWeb extends AppRouterDelegate<Uri> {
     }
   }
 
+  @override
+  Future<void> setInitialRoutePath(Uri uri) async {
+    if (uri.toString() == '/' || uri.toString() == '/${PageKeys.Splash}') {
+      var splashLocation = '/${PageKeys.Splash}';
+      push(Uri.parse(splashLocation));
+
+      await fetchAndStoreConfiguration();
+
+      var homeLocation = '/${PageKeys.Home}';
+      push(Uri.parse(homeLocation));
+    }
+  }
+
   /// Called by the [Router] when the [Router.routeInformationProvider] reports that a
   /// new route has been pushed to the application by the operating system.
   ///
@@ -227,31 +240,41 @@ class AppRouterDelegateWeb extends AppRouterDelegate<Uri> {
     } else {
       var location = uri.pathSegments.elementAt(0);
 
-      var loadingDestination = '/${PageKeys.Loading}';
-      push(Uri.parse(loadingDestination));
-      await Future.delayed(Duration(seconds: 1));
+      // var loadingDestination = '/${PageKeys.Loading}';
+      // push(Uri.parse(loadingDestination));
+      // await Future.delayed(Duration(seconds: 1));
 
-      switch (location) {
-        case PageKeys.Home:
-          await fetchAndStoreConfiguration();
-          var destination = '/${PageKeys.Home}';
-          replaceAllPagesWith(Uri.parse(destination));
-          removePage(PageKeys.Loading);
-          break;
-        case PageKeys.MovieDetail:
-          var _futures = List<Future>.empty(growable: true);
-          _futures.add(fetchAndStoreConfiguration());
-          _futures.add(fetchPopularMovies());
-          await Future.wait(_futures);
+      if (pageStack.isEmpty) {
+        // Application was terminated
+        switch (location) {
+          case PageKeys.Home:
+            var splashLocation = '/${PageKeys.Splash}';
+            push(Uri.parse(splashLocation));
+            // await fetchAndStoreConfiguration();
+            // var destination = '/${PageKeys.Home}';
+            // replaceAllPagesWith(Uri.parse(destination));
+            // removePage(PageKeys.Loading);
+            break;
+          case PageKeys.MovieDetail:
+            var splashLocation = '/${PageKeys.Splash}';
+            push(Uri.parse(splashLocation));
+            var _futures = List<Future>.empty(growable: true);
+            _futures.add(fetchAndStoreConfiguration());
+            // _futures.add(fetchPopularMovies());
+            await Future.wait(_futures);
 
-          var movieId = uri.pathSegments.elementAt(1);
-          var destination = '/${PageKeys.MovieDetail}/$movieId';
-          replaceAllPagesWith(Uri.parse(destination));
+            var movieId = uri.pathSegments.elementAt(1);
+            var destination = '/${PageKeys.MovieDetail}/$movieId';
+            replaceAllPagesWith(Uri.parse(destination));
 
-          var homeDestination = '/${PageKeys.Home}';
-          pushBefore(Uri.parse(homeDestination), PageKeys.MovieDetail);
+            var homeDestination = '/${PageKeys.Home}';
+            pushBefore(Uri.parse(homeDestination), PageKeys.MovieDetail);
 
-          removePage(PageKeys.Loading);
+          // removePage(PageKeys.Loading);
+        }
+      } else {
+        var location = uri.toString();
+        push(Uri.parse('/$location'));
       }
     }
     return null;
