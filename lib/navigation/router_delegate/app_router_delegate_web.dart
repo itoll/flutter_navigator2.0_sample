@@ -12,21 +12,36 @@ import 'package:flutter_navigator2_sample/navigation/page_stack.dart';
 import 'package:flutter_navigator2_sample/navigation/route_path.dart';
 import 'package:flutter_navigator2_sample/navigation/router_delegate/routes.dart';
 import 'package:flutter_navigator2_sample/navigation/type_aliases.dart';
+import 'package:flutter_navigator2_sample/presentation/command/fetch_and_store_configuration.dart';
+import 'package:flutter_navigator2_sample/presentation/command/fetch_image_base_url.dart';
+import 'package:flutter_navigator2_sample/presentation/command/fetch_popular_movies.dart';
 import 'package:flutter_navigator2_sample/presentation/page/not_found_page.dart';
-import 'package:flutter_navigator2_sample/presentation/page/splash_page.dart';
 
 import 'app_router_delegate.dart';
 
-AppRouterDelegate getDelegate() => AppRouterDelegateWeb(pageStack: sl<PageStack>(), routeMap: routes);
+AppRouterDelegate getDelegate() => AppRouterDelegateWeb(
+      pageStack: sl<PageStack>(),
+      routeMap: routes,
+      fetchAndStoreConfiguration: sl<FetchAndStoreConfiguration>(),
+      fetchImageBaseUrl: sl<FetchImageBaseUrl>(),
+      fetchPopularMovies: sl<FetchPopularMovies>(),
+    );
 
 class AppRouterDelegateWeb extends AppRouterDelegate<Uri> {
   final PageStack pageStack;
 
   final Map<String, PageBuilder> routeMap;
 
+  final FetchAndStoreConfiguration fetchAndStoreConfiguration;
+  final FetchImageBaseUrl fetchImageBaseUrl;
+  final FetchPopularMovies fetchPopularMovies;
+
   AppRouterDelegateWeb({
     required this.pageStack,
     required this.routeMap,
+    required this.fetchAndStoreConfiguration,
+    required this.fetchImageBaseUrl,
+    required this.fetchPopularMovies,
   }) {
     pageStack.addListener(_stateListener);
   }
@@ -156,7 +171,7 @@ class AppRouterDelegateWeb extends AppRouterDelegate<Uri> {
   /// If returns false, the entire app will be popped, else
   /// it will pop the last page
   @override
-  Future<bool> popRoute() async => tryGoBack();
+  SynchronousFuture<bool> popRoute() => SynchronousFuture(tryGoBack());
 
   /// This method is called either by back button press
   /// or when [Navigator.of(context).pop()] is called.
@@ -169,6 +184,10 @@ class AppRouterDelegateWeb extends AppRouterDelegate<Uri> {
       case PageKeys.Splash:
         return false;
       case PageKeys.Home:
+        if (kDebugMode) {
+          pageStack.popLastPage();
+          return true;
+        }
         return false;
       case PageKeys.MovieDetail:
         pageStack.popLastPage();
@@ -189,20 +208,34 @@ class AppRouterDelegateWeb extends AppRouterDelegate<Uri> {
   Future<void> setNewRoutePath(Uri uri) async {
     if (uri.toString() == '/') {
       push(Uri.parse('/${PageKeys.Splash}'));
-      return SynchronousFuture(null);
+      return null;
     } else {
-      if (pageStack.isEmpty) {
-        // Application has been in terminated status, so we need to
-        // push splash page with a callback to navigate to next destination
-        _pushPage(SplashPage());
-      } else {
-        // Application has been in background status, so we need to clear
-        // all current pages, push splash page and navigate to next page using
-        // a callback passed to [SplashPage]
-        _replaceAllPagesWith(SplashPage());
+      var location = uri.pathSegments.elementAt(0);
+
+      var loadingDestination = '/${PageKeys.Loading}';
+      push(Uri.parse(loadingDestination));
+
+      switch (location) {
+        case PageKeys.Home:
+          await fetchAndStoreConfiguration();
+          var destination = '/${PageKeys.Home}';
+          push(Uri.parse(destination));
+          break;
+        case PageKeys.MovieDetail:
+          var _futures = List<Future>.empty(growable: true);
+          _futures.add(fetchAndStoreConfiguration());
+          _futures.add(fetchPopularMovies());
+          await Future.wait(_futures);
+
+          var movieId = uri.pathSegments.elementAt(1);
+          var destination = '/${PageKeys.MovieDetail}/$movieId';
+          push(Uri.parse(destination));
+
+          var homeDestination = '/${PageKeys.Home}';
+          pushBefore(Uri.parse(homeDestination), PageKeys.MovieDetail);
       }
     }
-    return SynchronousFuture(null);
+    return null;
   }
 
   /// Called by the [Router] when it detects a route information may have
@@ -227,7 +260,16 @@ class AppRouterDelegateWeb extends AppRouterDelegate<Uri> {
   /// only the top-most [Router] created by [WidgetsApp.router] should opt for
   /// route information reporting.
   @override
-  Uri get currentConfiguration => Uri.parse(pageStack.last.name ?? PageKeys.Splash);
+  Uri get currentConfiguration {
+    if (!pageStack.isEmpty) {
+      var lastPageName = pageStack.last.name;
+      return Uri.parse(lastPageName ?? '');
+    } else {
+      return Uri.parse(PageKeys.Splash);
+    }
+  }
+
+  // Uri get currentConfiguration => Uri.parse(pageStack.last.name ?? PageKeys.Splash);
 
   /// The key used for retrieving the current navigator.
   @override

@@ -9,7 +9,7 @@ import 'package:flutter_navigator2_sample/presentation/screen/movie_detail_scree
 class MovieDetailPage extends Page {
   final int movieId;
 
-  const MovieDetailPage({LocalKey? key, required this.movieId}) : super(key: key, name: PageKeys.Home);
+  const MovieDetailPage({LocalKey? key, required this.movieId}) : super(key: key, name: PageKeys.MovieDetail + '/$movieId');
 
   @override
   Route createRoute(BuildContext context) {

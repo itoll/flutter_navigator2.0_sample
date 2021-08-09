@@ -8,7 +8,7 @@ import 'package:flutter_navigator2_sample/presentation/bloc/splash/splash_bloc.d
 import 'package:flutter_navigator2_sample/presentation/screen/splash_screen.dart';
 
 class SplashPage extends Page {
-  const SplashPage({LocalKey? key}) : super(key: key, name: PageKeys.Home);
+  const SplashPage({LocalKey? key}) : super(key: key, name: PageKeys.Splash);
 
   @override
   Route createRoute(BuildContext context) {

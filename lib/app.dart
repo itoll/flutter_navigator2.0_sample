@@ -26,6 +26,7 @@ class _AppState extends State<App> {
       debugShowCheckedModeBanner: false,
       routerDelegate: _routerDelegate,
       routeInformationParser: _routeInformationParser,
+      backButtonDispatcher: RootBackButtonDispatcher(),
     );
   }
 }

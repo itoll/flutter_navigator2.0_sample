@@ -30,37 +30,35 @@ class MovieListItem extends StatelessWidget {
         child: Row(
           children: [
             // CachedNetworkImage(imageUrl: state.imageBaseUrl!! + item['poster_path']),
-            AspectRatio(
-              aspectRatio: 1.0,
-              child: ExtendedImage.network(
-                (imageBaseUrl ?? '') + (item['poster_path'] as String).substring(1),
-                fit: BoxFit.cover,
-                cache: true,
-                loadStateChanged: (ExtendedImageState state) {
-                  switch (state.extendedImageLoadState) {
-                    case LoadState.loading:
-                      return SpinKitDoubleBounce(
-                        color: Colors.black,
-                        size: 16.0,
-                      );
-                    case LoadState.completed:
-                      return ExtendedRawImage(
-                        image: state.extendedImageInfo?.image,
-                      );
-                    case LoadState.failed:
-                      return Container(
-                        child: Center(
-                          child: Icon(
-                            Icons.error_rounded,
-                            color: Colors.red,
-                          ),
+            ExtendedImage.network(
+              (imageBaseUrl ?? '') + 'original/' + (item['poster_path'] as String).substring(1),
+              fit: BoxFit.cover,
+              cache: true,
+              borderRadius: BorderRadius.all(Radius.circular(6)),
+              loadStateChanged: (ExtendedImageState state) {
+                switch (state.extendedImageLoadState) {
+                  case LoadState.loading:
+                    return SpinKitDoubleBounce(
+                      color: Colors.black,
+                      size: 16.0,
+                    );
+                  case LoadState.completed:
+                    return ExtendedRawImage(
+                      image: state.extendedImageInfo?.image,
+                    );
+                  case LoadState.failed:
+                    return Container(
+                      child: Center(
+                        child: Icon(
+                          Icons.error_rounded,
+                          color: Colors.red,
                         ),
-                      );
-                    default:
-                      return SizedBox();
-                  }
-                },
-              ),
+                      ),
+                    );
+                  default:
+                    return SizedBox();
+                }
+              },
             ),
             SizedBox(width: 8.0),
             Text(item['title']),
